@@ -1,0 +1,588 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>AI Resume ATS Score Checker | Free Resume Analyzer Tool</title>
+  <meta name="description" content="Free AI ATS resume checker: calculate your resume score, find missing keywords, and optimize instantly. No upload, 100% client-side privacy.">
+  <meta name="keywords" content="ats resume checker, resume ats score calculator, ai resume analyzer, ats resume test, resume keyword checker free">
+  <meta name="author" content="ResumeAIScore">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://as9329387575.github.io/resume-ats-checker">
+  <!-- PDF.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(145deg, #f6f9fc 0%, #eef2f8 100%);
+      color: #13294b;
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 20px 16px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* --- modern SaaS card style --- */
+    .card {
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(2px);
+      border-radius: 28px;
+      box-shadow: 0 20px 40px -12px rgba(0,32,64,0.25), 0 2px 6px rgba(0,0,0,0.05);
+      padding: 1.8rem 1.5rem;
+      border: 1px solid rgba(255,255,255,0.6);
+    }
+
+    /* ads placeholders */
+    .ad-placeholder {
+      background: linear-gradient(145deg, #e6edf5, #d9e2ed);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #2a4f7c;
+      font-weight: 500;
+      font-size: 1rem;
+      letter-spacing: 0.3px;
+      border: 1px dashed #2f6b9e50;
+      margin: 20px 0;
+      text-transform: uppercase;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    .ad-728 {
+      width: 100%;
+      min-height: 90px;
+    }
+    .ad-300 {
+      width: 100%;
+      min-height: 250px;
+    }
+    .ad-sidebar {
+      min-height: 250px;
+    }
+
+    /* main layout */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 1024px) {
+      .main-grid {
+        grid-template-columns: 1fr 320px;
+      }
+    }
+
+    /* inputs */
+    .upload-area {
+      border: 2px dashed #2b6c9e60;
+      background: #f0f7ff;
+      border-radius: 24px;
+      padding: 30px 20px;
+      text-align: center;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+    .upload-area:hover {
+      border-color: #1d4e8b;
+      background: #e3f0fd;
+    }
+    .file-input {
+      display: none;
+    }
+    .upload-label {
+      font-weight: 600;
+      color: #0f3b6a;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .icon {
+      font-size: 2.2rem;
+    }
+    .jd-textarea {
+      width: 100%;
+      border-radius: 24px;
+      border: 1px solid #bdd3e8;
+      padding: 18px 20px;
+      font-size: 1rem;
+      background: white;
+      resize: vertical;
+      margin: 10px 0 8px;
+      transition: 0.15s;
+    }
+    .jd-textarea:focus {
+      outline: 2px solid #2273c2;
+      border-color: transparent;
+    }
+    .btn-primary {
+      background: #0d2e55;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 16px 30px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 10px 18px -8px #0d2e5580;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    .btn-primary:hover {
+      background: #154b7a;
+      transform: scale(1.02);
+    }
+    .btn-secondary {
+      background: #ffffffd9;
+      border: 1px solid #2b6c9e;
+      color: #0f3b6a;
+      border-radius: 40px;
+      padding: 10px 22px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    /* progress bar */
+    .progress-container {
+      background: #e6eef8;
+      height: 22px;
+      border-radius: 40px;
+      margin: 15px 0 10px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #216eb0, #3892e0);
+      border-radius: 40px;
+      transition: width 0.5s ease-out;
+      box-shadow: inset 0 1px 3px #ffffff88;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0 16px;
+    }
+    .stat-card {
+      background: #f1f7ff;
+      border-radius: 24px;
+      padding: 18px 14px;
+      border: 1px solid white;
+    }
+    .missing-badge {
+      background: #ffeae8;
+      color: #b13e3e;
+      border-radius: 40px;
+      padding: 4px 12px;
+      display: inline-block;
+      margin: 3px;
+      font-size: 0.9rem;
+    }
+
+    .skill-badge {
+      background: #154b7a20;
+      color: #154b7a;
+      border-radius: 40px;
+      padding: 5px 15px;
+      display: inline-block;
+      margin: 4px;
+      font-weight: 500;
+    }
+
+    .footer-links a {
+      color: #2b4f73;
+      text-decoration: none;
+      margin: 0 12px 0 0;
+    }
+
+    /* contact form */
+    .contact-form input, .contact-form textarea {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 50px;
+      border: 1px solid #c3d9f0;
+      margin-bottom: 16px;
+      font-size: 1rem;
+    }
+    .contact-form textarea {
+      border-radius: 28px;
+    }
+
+    /* faq */
+    .faq-item {
+      border-bottom: 1px solid #c6d9ec;
+      padding: 16px 0;
+    }
+
+    h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.02em; }
+    h2 { font-size: 1.9rem; margin: 28px 0 16px; }
+    h3 { font-weight: 600; margin: 20px 0 8px; }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 1.8rem; }
+      .result-grid { grid-template-columns: 1fr; }
+    }
+
+    /* sidebar only visible desktop */
+    .sidebar-desktop {
+      display: none;
+    }
+    @media (min-width: 1024px) {
+      .sidebar-desktop {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- TOP BANNER AD 728x90 -->
+    <div class="ad-placeholder ad-728">📢 Ad Space – 728x90</div>
+
+    <!-- HEADER -->
+    <header style="margin: 20px 0 10px;">
+      <h1>AI Resume ATS Score Checker – Analyze & Improve Your Resume Instantly</h1>
+      <p style="font-size: 1.3rem; color: #1a4b77;">Free, client-side, privacy-first ATS simulator</p>
+    </header>
+
+    <!-- MAIN GRID (content + sidebar) -->
+    <div class="main-grid">
+      <!-- LEFT MAIN CONTENT -->
+      <section class="card" style="padding: 2rem 1.8rem;">
+        <!-- INPUTS -->
+        <div style="margin-bottom: 30px;">
+          <div class="upload-area" onclick="document.getElementById('resumePDF').click()">
+            <input type="file" id="resumePDF" class="file-input" accept=".pdf" />
+            <div class="upload-label">
+              <span class="icon">📎</span>
+              <span><strong>Upload Resume (PDF only)</strong><br>click or drag & drop</span>
+            </div>
+          </div>
+
+          <label for="jobDesc" style="font-weight:600; margin-top:25px; display:block;">Job Description</label>
+          <textarea id="jobDesc" class="jd-textarea" rows="6" placeholder="Paste job description here... (we'll compare keywords)"></textarea>
+
+          <button class="btn-primary" id="analyzeBtn">🔍 Analyze Resume</button>
+          <p style="font-size:0.85rem; margin-top:12px; color:#476788;">⚡ 100% client-side — your file never leaves your device</p>
+        </div>
+
+        <!-- RESULTS SECTION (hidden until analysis) -->
+        <div id="resultsArea" style="display: none;">
+          <hr style="border:1px solid #cfdff0; margin:30px 0 20px;">
+          <h2 style="font-size:2rem; margin:0 0 10px;">📊 Your ATS Score</h2>
+
+          <!-- Score + progress -->
+          <div style="display: flex; align-items: baseline; gap:15px; flex-wrap:wrap;">
+            <span style="font-size:3.5rem; font-weight:800; color:#13294b;" id="overallScore">78</span>
+            <span style="font-size:1.3rem;">/100</span>
+          </div>
+          <div class="progress-container">
+            <div class="progress-fill" id="scoreProgress" style="width:0%"></div>
+          </div>
+
+          <!-- result cards -->
+          <div class="result-grid">
+            <div class="stat-card"><span style="font-weight:600;">🔤 Keyword match</span> <span style="float:right;" id="keywordMatch">64%</span></div>
+            <div class="stat-card"><span style="font-weight:600;">📋 Section completeness</span> <span style="float:right;" id="sectionScore">80%</span></div>
+          </div>
+          
+          <!-- missing keywords -->
+          <div style="margin: 20px 0 15px;">
+            <h3 style="margin-bottom:8px;">⛔ Missing keywords</h3>
+            <div id="missingKeywordsList" class="missing-badge" style="background:transparent; padding:0;">loading...</div>
+          </div>
+
+          <!-- detected skills -->
+          <div style="margin:20px 0">
+            <h3>✅ Detected skills</h3>
+            <div id="detectedSkills"></div>
+          </div>
+
+          <!-- tips + suggestions -->
+          <div style="background:#eef4fa; border-radius:24px; padding:20px; margin:20px 0;">
+            <h3>💡 Formatting tips & suggestions</h3>
+            <ul id="suggestionList" style="margin-left:20px;">
+              <li>Use standard section headings (Summary, Skills, Experience, Education)</li>
+            </ul>
+            <button class="btn-secondary" id="copySuggestions" style="margin-top:15px;">📋 Copy suggestions</button>
+          </div>
+
+          <!-- Mid-content Ad (after results) -->
+          <div class="ad-placeholder ad-728" style="margin:30px 0 0;">📢 Ad Space – 728x90 (mid-content)</div>
+        </div>
+
+        <!-- SEO TEXT (1200+ words feel) -->
+        <article style="margin-top: 60px;">
+          <h2>What is ATS and why your resume needs to pass it</h2>
+          <p>Applicant Tracking Systems (ATS) are used by 98% of Fortune 500 companies. They scan resumes for keywords, formatting, and section structure before a human sees it. If your resume lacks the right keywords or uses complex layouts, it gets rejected — even if you’re the perfect fit.</p>
+          
+          <h3>How ATS works</h3>
+          <p>ATS parses your resume into fields: contact info, work experience, skills, education. It then matches those against the job description. Our AI simulator replicates this process locally.</p>
+
+          <h3>Why resumes get rejected</h3>
+          <p>Missing keywords (up to 60% drop), no skills section, poor formatting (tables/columns), or missing contact details. This tool highlights exactly what’s missing.</p>
+
+          <h3>Importance of keyword matching</h3>
+          <p>Recruiters search for specific terms like “Python” or “project management”. Our tool compares your resume text with the job description and gives you a match ratio.</p>
+
+          <h3>How this AI tool works</h3>
+          <p>1. You upload PDF (processed with PDF.js). 2. We extract raw text and detect sections (summary, skills, experience, education). 3. We compare keywords (after cleaning stopwords) against the job description. 4. Score is calculated based on keyword relevance, section presence, skill count, length, and formatting signals (bullets, dates). All 100% local.</p>
+
+          <h3>Who should use it</h3>
+          <p>Job seekers, career changers, students, and professionals who want to optimize their resume for any ATS. It’s free and private.</p>
+        </article>
+
+        <!-- FAQ SECTION -->
+        <section style="margin: 50px 0;">
+          <h2>Frequently Asked Questions</h2>
+          <div class="faq-item"><strong>❓ What is an ATS score?</strong> It's an estimation of how well your resume matches a given job description based on keywords, sections, and formatting.</div>
+          <div class="faq-item"><strong>❓ Is this ATS checker free?</strong> Yes, 100% free, no registration.</div>
+          <div class="faq-item"><strong>❓ Is this an official ATS system?</strong> No — this is an educational simulator. We don't represent any official ATS.</div>
+          <div class="faq-item"><strong>❓ Does this store my resume?</strong> No file leaves your browser. Everything stays client-side.</div>
+          <div class="faq-item"><strong>❓ How accurate is the score?</strong> It’s a strong indicator but not certified. Use it to spot missing keywords and sections.</div>
+          <div class="faq-item"><strong>❓ Can I improve my resume using this tool?</strong> Absolutely — apply the missing keywords and section tips, then re-check.</div>
+        </section>
+
+        <!-- CONTACT FORM (FormSubmit) -->
+        <section style="margin: 50px 0;">
+          <h2>Contact us</h2>
+          <form class="contact-form" action="https://formsubmit.co/as9329387575@gmail.com" method="POST">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="text" name="name" placeholder="Your name" required>
+            <input type="email" name="email" placeholder="Email address" required>
+            <textarea name="message" rows="4" placeholder="Your message" required></textarea>
+            <button type="submit" class="btn-primary" style="background:#154b7a;">Send message</button>
+          </form>
+        </section>
+
+        <!-- PRIVACY & TERMS inline (condensed but visible) -->
+        <div style="background:#ffffffb0; border-radius: 30px; padding: 30px 25px; margin: 30px 0;">
+          <h2>🔏 Privacy & terms</h2>
+          <p><strong>No file storage:</strong> Your resume never leaves your device; all analysis is client-side.<br>
+          <strong>Cookies & ads:</strong> This site uses Google AdSense / third-party ads, which may set cookies. We do not sell personal data.<br>
+          <strong>Contact:</strong> as9329387575@gmail.com</p>
+          <p><strong>Terms:</strong> Use at your own risk. No liability for accuracy. Content is for guidance only. All intellectual property belongs to their owners. Governing law: fictional jurisdiction.</p>
+        </div>
+      </section>
+
+      <!-- RIGHT SIDEBAR (desktop only) -->
+      <aside class="sidebar-desktop">
+        <div class="card" style="position: sticky; top: 20px;">
+          <div class="ad-placeholder ad-300" style="min-height:250px;">📢 Ad Space – 300x250 (sidebar)</div>
+          <p style="margin-top: 20px; font-size:0.9rem;">⚡ Optimize your resume with our AI sidekick. More tips: use bullet points, avoid images, include metrics.</p>
+        </div>
+      </aside>
+    </div>
+
+    <!-- FOOTER ADS + LINKS -->
+    <footer style="margin: 40px 0 10px;">
+      <div class="ad-placeholder ad-728" style="margin:20px 0;">📢 Ad Space – 728x90 (footer)</div>
+      <div class="footer-links" style="display:flex; flex-wrap:wrap; gap:20px; justify-content:space-between; align-items:center;">
+        <div>© 2025 AI Resume ATS Score – Secure Client-Side Resume Analysis</div>
+        <div>
+          <a href="#">Home</a> | <a href="#">Privacy</a> | <a href="#">Terms</a> | <a href="#">Contact</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (function() {
+      // ---------- core logic ----------
+      const analyzeBtn = document.getElementById('analyzeBtn');
+      const fileInput = document.getElementById('resumePDF');
+      const jobDescTA = document.getElementById('jobDesc');
+      const resultsArea = document.getElementById('resultsArea');
+
+      // result spans
+      const overallScoreSpan = document.getElementById('overallScore');
+      const progressFill = document.getElementById('scoreProgress');
+      const keywordMatchSpan = document.getElementById('keywordMatch');
+      const sectionScoreSpan = document.getElementById('sectionScore');
+      const missingKeywordsDiv = document.getElementById('missingKeywordsList');
+      const detectedSkillsDiv = document.getElementById('detectedSkills');
+      const suggestionList = document.getElementById('suggestionList');
+
+      let extractedText = ''; // holds last resume text
+
+      // stopwords simple set
+      const stopwords = new Set(['the','and','of','to','in','for','on','with','at','by','from','as','an','a','i','you','your','we','our','is','are','was','were','be','been','have','has','had','do','does','did','but','or','yet','so']);
+
+      function tokenize(text) {
+        return text.toLowerCase().split(/[^\w]+/).filter(w => w.length > 1 && !stopwords.has(w));
+      }
+
+      function detectSections(text) {
+        const lower = text.toLowerCase();
+        let hasSummary = /summary|profile|about me/.test(lower);
+        let hasSkills = /skills|technologies|competenc/.test(lower);
+        let hasExperience = /experience|work history|employment/.test(lower);
+        let hasEducation = /education|academic|degree|bachelor|master|phd/.test(lower);
+        return { hasSummary, hasSkills, hasExperience, hasEducation };
+      }
+
+      function extractSkills(text, jdKeywords) {
+        // simply intersect tokens with jdKeywords (unique)
+        const tokens = tokenize(text);
+        const uniqueTokens = [...new Set(tokens)];
+        const jdSet = new Set(jdKeywords.map(k => k.toLowerCase()));
+        const skillsFound = uniqueTokens.filter(t => jdSet.has(t)).slice(0, 20); // show top 20
+        return skillsFound;
+      }
+
+      function calculateScore(resumeText, jdText) {
+        if (!resumeText || !jdText) return null;
+
+        const resumeTokens = tokenize(resumeText);
+        const jdTokens = tokenize(jdText);
+        if (jdTokens.length === 0) return null;
+
+        // unique sets
+        const resumeSet = new Set(resumeTokens);
+        const jdSet = new Set(jdTokens);
+        
+        // keyword match (40%)
+        const matched = [...jdSet].filter(k => resumeSet.has(k));
+        const matchPct = jdSet.size ? (matched.length / jdSet.size) * 100 : 0;
+
+        // section presence (20%)
+        const sections = detectSections(resumeText);
+        const sectionCount = [sections.hasSummary, sections.hasSkills, sections.hasExperience, sections.hasEducation].filter(Boolean).length;
+        const sectionScoreVal = (sectionCount / 4) * 100;
+
+        // skill matching (20%) – reuse matched skills relative to jdSet (but use any words as skill proxy)
+        const skillMatchScore = matchPct; // simplified: use keyword match
+
+        // content length (10%) – arbitrary: >300 words full points
+        const wordCount = resumeTokens.length;
+        const lengthScore = Math.min(100, (wordCount / 300) * 100);
+
+        // formatting signals (10%) – bullet points, dates
+        const hasBullet = /•|●|\*|-|\d+\.\s/.test(resumeText);
+        const hasDate = /\b(19|20)\d{2}\b/.test(resumeText) || /jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec/i.test(resumeText);
+        let formatScore = 0;
+        if (hasBullet) formatScore += 50;
+        if (hasDate) formatScore += 50;
+
+        // final score weighted
+        const final = (matchPct * 0.4) + (sectionScoreVal * 0.2) + (skillMatchScore * 0.2) + (lengthScore * 0.1) + (formatScore * 0.1);
+        return {
+          overall: Math.min(99, Math.round(final)),
+          keywordMatch: Math.round(matchPct),
+          sectionScore: Math.round(sectionScoreVal),
+          missingKeywords: [...jdSet].filter(k => !resumeSet.has(k)).slice(0, 15),
+          matchedKeywords: matched,
+          sections: sections,
+          formatFlags: { hasBullet, hasDate, wordCount }
+        };
+      }
+
+      function renderResults(scoreObj) {
+        if (!scoreObj) return;
+        overallScoreSpan.innerText = scoreObj.overall;
+        progressFill.style.width = scoreObj.overall + '%';
+        keywordMatchSpan.innerText = scoreObj.keywordMatch + '%';
+        sectionScoreSpan.innerText = scoreObj.sectionScore + '%';
+
+        // missing keywords
+        if (scoreObj.missingKeywords.length) {
+          missingKeywordsDiv.innerHTML = scoreObj.missingKeywords.map(k => `<span class="missing-badge">${k}</span>`).join(' ');
+        } else {
+          missingKeywordsDiv.innerHTML = '<span class="missing-badge">✨ No missing keywords — great match!</span>';
+        }
+
+        // detected skills (from matched)
+        const matchedDisplay = scoreObj.matchedKeywords.slice(0, 20);
+        detectedSkillsDiv.innerHTML = matchedDisplay.length ? matchedDisplay.map(s => `<span class="skill-badge">${s}</span>`).join(' ') : '—';
+
+        // suggestions
+        const tips = [];
+        if (!scoreObj.sections.hasSummary) tips.push('Add a professional Summary section.');
+        if (!scoreObj.sections.hasSkills) tips.push('Include a Skills section with technical keywords.');
+        if (!scoreObj.sections.hasExperience) tips.push('Add a Work Experience section.');
+        if (!scoreObj.sections.hasEducation) tips.push('Include Education details.');
+        if (!scoreObj.formatFlags.hasBullet) tips.push('Use bullet points for achievements.');
+        if (!scoreObj.formatFlags.hasDate) tips.push('Add dates (years) to experience entries.');
+        if (scoreObj.formatFlags.wordCount < 200) tips.push('Your resume is short; aim for 300+ words.');
+        if (scoreObj.missingKeywords.length > 10) tips.push('Integrate more keywords from job description.');
+        if (tips.length === 0) tips.push('Resume looks well-structured!');
+
+        suggestionList.innerHTML = tips.map(t => `<li>${t}</li>`).join('');
+
+        resultsArea.style.display = 'block';
+      }
+
+      // copy suggestions
+      document.getElementById('copySuggestions').addEventListener('click', function() {
+        const tips = [...suggestionList.querySelectorAll('li')].map(li => li.innerText).join('\n• ');
+        navigator.clipboard.writeText('ATS improvement tips:\n• ' + tips).then(() => alert('Suggestions copied!'));
+      });
+
+      // main analyze
+      analyzeBtn.addEventListener('click', async function() {
+        const file = fileInput.files[0];
+        const jdText = jobDescTA.value.trim();
+
+        if (!file) {
+          alert('Please upload a PDF resume.');
+          return;
+        }
+        if (!jdText) {
+          alert('Paste a job description.');
+          return;
+        }
+
+        try {
+          // PDF extraction using PDF.js
+          const arrayBuffer = await file.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          let fullText = '';
+
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            const strings = content.items.map(item => item.str);
+            fullText += strings.join(' ') + '\n';
+          }
+
+          extractedText = fullText;
+          const score = calculateScore(extractedText, jdText);
+          if (score) {
+            renderResults(score);
+          } else {
+            alert('Could not analyze — check text length.');
+          }
+        } catch (e) {
+          alert('PDF parsing error: ' + e.message);
+        }
+      });
+
+      // disclaimer disclaimer
+      const disclaimer = document.createElement('div');
+      disclaimer.style.fontSize = '0.8rem';
+      disclaimer.style.marginTop = '20px';
+      disclaimer.style.padding = '10px';
+      disclaimer.style.background = '#fafbfd';
+      disclaimer.innerHTML = '⚠️ This is an estimation tool — not official ATS certification.';
+      document.querySelector('.main-grid').appendChild(disclaimer);
+    })();
+  </script>
+  <!-- disclaimer note for ads: they are placeholders -->
+</body>
+</html>
+```
